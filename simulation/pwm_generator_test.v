@@ -1,6 +1,5 @@
 `timescale 1ns / 1ps
 
-
 module pwm_generator_test;
 
 reg clk;
