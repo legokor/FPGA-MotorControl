@@ -5,55 +5,48 @@ module servo_speed_control #(
 )(
     input [CNTR_BITS - 1:0] start_pos,
     input [CNTR_BITS - 1:0] end_pos,
-    input [CNTR_BITS - 1:0] speed,
-    
+    input [CNTR_BITS - 1:0] prescale,
     input go,
-    
     input clk,
     
     output rdy,
     output [CNTR_BITS - 1:0] out_cmp
 );
     
-    reg [CNTR_BITS - 1:0] current;
-    reg [CNTR_BITS - 1:0] end_reg;
-    reg [CNTR_BITS - 1:0] speed_reg;
+    reg [CNTR_BITS - 1:0] current;          // kimenethez tartozo regiszter
+    reg [CNTR_BITS - 1:0] end_reg;          // végállapotot tartalmazó regiszter
+    reg [CNTR_BITS - 1:0] prescale_reg;     // prescale érték regiszter
+    reg [CNTR_BITS - 1:0] cntr;             // sebességszabályzáshoz órajlosztó regiszter
     
     always@ (posedge clk) begin
             
-        if(go) begin
+        if(go) begin                        // go jelre beolvassuk a bemenetet
             
             current <= start_pos;
             end_reg <= end_pos;
-            speed_reg <= speed;
+            prescale_reg <= prescale;
+            cntr <= 0;
             
         end else begin
             
-            if(current < end_reg) begin
+            if(current < end_reg) begin     // ha a jelenlegi kimenet kisebb a célnál
                 
-                if(current + speed_reg > end_reg)begin
-                    current <= end_reg;
-                end else begin
-                    current <= current + speed_reg;
+                if(cntr < prescale_reg) begin   // órajelet prescalelünk
+                    cntr <= cntr + 1;
                 end
                 
-            end
-            
-            if(current > end_reg) begin
-                
-                if(current - speed_reg < end_reg)begin
-                    current <= end_reg;
-                end else begin
-                    current <= current - speed_reg;
+                if(cntr == prescale_reg) begin  // és osztott órajelre növeljük a kimenetet
+                    cntr <= 0;
+                    current = current + 1;
                 end
-                
+                                
             end
             
         end
     
     end
     
-    assign rdy = (current == end_reg);
+    assign rdy = (current == end_reg);          // folyamatot befejeztük
     assign out_cmp = current;
     
 endmodule
