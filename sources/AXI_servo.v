@@ -20,7 +20,7 @@
 
         output wire [31:0] start_pos,
         output wire [31:0] end_pos,
-        output wire [31:0] speed,
+        output wire [31:0] prescale,
 
         output wire go,
 
@@ -420,7 +420,7 @@
 
     assign start_pos = slv_reg0;
     assign end_pos = slv_reg1;
-    assign speed = slv_reg2;
+    assign prescale = slv_reg2;
 
     assign go = slv_reg4[0];
 
